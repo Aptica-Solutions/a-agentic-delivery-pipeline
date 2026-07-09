@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 1010" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#5a6b75"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#b8860b"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#1f7a4d"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="980" height="1010" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="490" y="40" text-anchor="middle" font-size="24" font-weight="700" fill="#143647">Agentic Delivery Pipeline</text>
+  <text x="490" y="63" text-anchor="middle" font-size="13" fill="#5a6b75">Requirement to governed solution, human in the loop at every gate that matters</text>
+
+  <!-- Main vertical arrows -->
+  <g stroke="#5a6b75" stroke-width="1.6" fill="none" marker-end="url(#arrow)">
+    <line x1="490" y1="146" x2="490" y2="194"/>
+    <line x1="490" y1="250" x2="490" y2="298"/>
+    <line x1="490" y1="354" x2="490" y2="402"/>
+    <line x1="490" y1="458" x2="490" y2="506"/>
+    <line x1="490" y1="562" x2="490" y2="610"/>
+    <line x1="490" y1="666" x2="490" y2="714"/>
+    <line x1="490" y1="770" x2="490" y2="818"/>
+    <line x1="490" y1="874" x2="490" y2="922"/>
+  </g>
+
+  <!-- Stage boxes -->
+  <!-- 1 endpoint -->
+  <g>
+    <rect x="340" y="92" width="300" height="54" rx="9" fill="#d5dde2" stroke="#52616b" stroke-width="1.5"/>
+    <text x="490" y="118" text-anchor="middle" font-size="15" font-weight="700" fill="#243640">Raw requirement</text>
+    <text x="490" y="136" text-anchor="middle" font-size="10.5" fill="#4a5b66">email &#183; ticket &#183; message &#183; doc</text>
+  </g>
+  <!-- 2 -->
+  <g>
+    <rect x="340" y="196" width="300" height="54" rx="9" fill="#eaf2f7" stroke="#2f6d90" stroke-width="1.5"/>
+    <text x="490" y="222" text-anchor="middle" font-size="15" font-weight="700" fill="#143647">Intake</text>
+    <text x="490" y="240" text-anchor="middle" font-size="10.5" fill="#4a6779">parse &#183; register &#183; scaffold tasks</text>
+  </g>
+  <!-- 3 architect -->
+  <g>
+    <rect x="340" y="300" width="300" height="54" rx="9" fill="#eaf2f7" stroke="#2f6d90" stroke-width="1.5"/>
+    <text x="490" y="326" text-anchor="middle" font-size="15" font-weight="700" fill="#143647">Architect</text>
+    <text x="490" y="344" text-anchor="middle" font-size="10.5" fill="#4a6779">design &#183; integration map &#183; risk flags</text>
+  </g>
+  <!-- 4 scaffold / onboard -->
+  <g>
+    <rect x="340" y="404" width="300" height="54" rx="9" fill="#eaf2f7" stroke="#2f6d90" stroke-width="1.5"/>
+    <text x="490" y="428" text-anchor="middle" font-size="15" font-weight="700" fill="#143647">Scaffold / onboard</text>
+    <text x="490" y="446" text-anchor="middle" font-size="10.5" fill="#4a6779">new repo, or conform an existing one</text>
+  </g>
+
+  <!-- Brownfield entry: an existing repo/portfolio onboarded into stage 3 -->
+  <rect x="108" y="405" width="192" height="42" rx="9" fill="#d5dde2" stroke="#52616b" stroke-width="1.5"/>
+  <text x="204" y="431" text-anchor="middle" font-size="12" font-weight="700" fill="#243640">Existing repo / portfolio</text>
+  <text x="204" y="462" text-anchor="middle" font-size="9" fill="#8a6a1e">interrogate + survey gate</text>
+  <line x1="300" y1="426" x2="338" y2="428" stroke="#5a6b75" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <!-- 5 develop -->
+  <g>
+    <rect x="340" y="508" width="300" height="54" rx="9" fill="#eaf2f7" stroke="#2f6d90" stroke-width="1.5"/>
+    <text x="490" y="534" text-anchor="middle" font-size="15" font-weight="700" fill="#143647">Develop</text>
+    <text x="490" y="552" text-anchor="middle" font-size="10.5" fill="#4a6779">requirements-traceability audits</text>
+  </g>
+  <!-- 6 qa -->
+  <g>
+    <rect x="340" y="612" width="300" height="54" rx="9" fill="#eaf2f7" stroke="#2f6d90" stroke-width="1.5"/>
+    <text x="490" y="638" text-anchor="middle" font-size="15" font-weight="700" fill="#143647">QA loop</text>
+    <text x="490" y="656" text-anchor="middle" font-size="10.5" fill="#4a6779">structured tester feedback</text>
+  </g>
+  <!-- 7 change gate (amber) -->
+  <g>
+    <rect x="340" y="716" width="300" height="54" rx="9" fill="#fbf3df" stroke="#b8860b" stroke-width="1.5"/>
+    <text x="490" y="742" text-anchor="middle" font-size="15" font-weight="700" fill="#6b5310">Change gate</text>
+    <text x="490" y="760" text-anchor="middle" font-size="10.5" fill="#8a6a1e">approval before production</text>
+  </g>
+  <!-- 8 -->
+  <g>
+    <rect x="340" y="820" width="300" height="54" rx="9" fill="#eaf2f7" stroke="#2f6d90" stroke-width="1.5"/>
+    <text x="490" y="846" text-anchor="middle" font-size="15" font-weight="700" fill="#143647">Publish docs</text>
+    <text x="490" y="864" text-anchor="middle" font-size="10.5" fill="#4a6779">architecture &#183; onboarding</text>
+  </g>
+  <!-- 9 endpoint -->
+  <g>
+    <rect x="340" y="924" width="300" height="54" rx="9" fill="#d5dde2" stroke="#52616b" stroke-width="1.5"/>
+    <text x="490" y="957" text-anchor="middle" font-size="15" font-weight="700" fill="#243640">Deployed, governed solution</text>
+  </g>
+
+  <!-- Analyst Q&A loop (left of Architect, amber human gate) -->
+  <rect x="120" y="303" width="180" height="48" rx="9" fill="#fbf3df" stroke="#b8860b" stroke-width="1.5"/>
+  <text x="210" y="332" text-anchor="middle" font-size="12.5" font-weight="700" fill="#6b5310">Analyst Q&amp;A loop</text>
+  <g stroke="#b8860b" stroke-width="1.5" fill="none">
+    <line x1="340" y1="314" x2="302" y2="314" marker-end="url(#arrowAmber)"/>
+    <line x1="300" y1="341" x2="338" y2="341" marker-end="url(#arrowAmber)"/>
+  </g>
+  <text x="320" y="307" text-anchor="middle" font-size="9.5" fill="#8a6a1e">questions</text>
+  <text x="320" y="356" text-anchor="middle" font-size="9.5" fill="#8a6a1e">answers</text>
+
+  <!-- Defects loop: QA back to Develop (left) -->
+  <path d="M340,639 C298,612 298,562 338,537" stroke="#5a6b75" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+  <text x="292" y="590" text-anchor="end" font-size="10" fill="#5a6b75">defects</text>
+
+  <!-- runmeter telemetry (right) -->
+  <rect x="680" y="452" width="220" height="72" rx="10" fill="#e3f3ea" stroke="#1f7a4d" stroke-width="1.5"/>
+  <text x="790" y="484" text-anchor="middle" font-size="15" font-weight="700" fill="#124d31">runmeter</text>
+  <text x="790" y="503" text-anchor="middle" font-size="10.5" fill="#2f7a54">cost &#183; latency &#183; reliability</text>
+  <text x="668" y="440" text-anchor="middle" font-size="10" fill="#1f7a4d">telemetry</text>
+  <g stroke="#1f7a4d" stroke-width="1.4" fill="none" stroke-dasharray="5,4" marker-end="url(#arrowGreen)">
+    <path d="M640,322 C680,340 660,455 678,470"/>
+    <line x1="640" y1="535" x2="678" y2="492"/>
+    <path d="M640,635 C680,610 660,520 678,512"/>
+  </g>
+
+  <text x="490" y="998" text-anchor="middle" font-size="10.5" fill="#8a97a0">Aptica Solutions &#183; profile-driven &#183; toolchain-agnostic &#183; stateful and resumable</text>
+</svg>

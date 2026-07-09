@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentic-delivery-pipeline"
+version = "0.1.0"
+description = "Genericized reference implementation of an AI-native, skills-driven delivery pipeline: requirements to governed solution, with human-in-the-loop gates and runmeter telemetry"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Aptica Solutions" }]
+keywords = ["agentic", "pipeline", "orchestration", "llm", "reference-design", "telemetry"]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0"]
+
+[project.urls]
+Homepage = "https://github.com/Aptica-Solutions/a-agentic-delivery-pipeline"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pipeline"]

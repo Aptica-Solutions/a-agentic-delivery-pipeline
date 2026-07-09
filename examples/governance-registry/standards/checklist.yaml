@@ -1,0 +1,58 @@
+# Governance standards checklist.
+# The onboarding interrogation scores an existing repo against these standards.
+# This list is kept in agreement with pipeline/governance.py (DEFAULT_STANDARDS):
+# the code is the executable copy, this file is the human-readable registry copy.
+#
+# severity: blocker | high | medium | low
+# A repo is conformant only when every standard passes.
+
+standards:
+  - id: no-secrets
+    title: No committed secrets
+    severity: blocker
+    remediation: Remove committed secrets, ignore .env, and rotate any exposed keys.
+
+  - id: license
+    title: License present
+    severity: high
+    remediation: Add a LICENSE (MIT for internal/prototype assets).
+
+  - id: ci
+    title: CI workflow present
+    severity: high
+    remediation: Add .github/workflows/ci.yml running lint and tests.
+
+  - id: registered
+    title: Registered in governance
+    severity: high
+    remediation: Add a registry entry so the repo is tracked and scaffolding-aware.
+
+  - id: branch-protection
+    title: Default branch protected
+    severity: high
+    remediation: Apply the production-tier ruleset (PR review, no force-push, no deletion).
+
+  - id: readme
+    title: README present
+    severity: medium
+    remediation: Add a README describing purpose, setup, and usage.
+
+  - id: onboarding
+    title: Onboarding doc present
+    severity: medium
+    remediation: Generate ONBOARDING.md via the onboarding survey.
+
+  - id: architecture
+    title: Architecture doc present
+    severity: medium
+    remediation: Capture the design in ARCHITECTURE.md.
+
+  - id: ignore-hygiene
+    title: Ignore hygiene
+    severity: medium
+    remediation: Extend .gitignore to cover build, env, and cache artifacts.
+
+  - id: agent-context
+    title: Agent context file present
+    severity: low
+    remediation: Add AGENTS.md / CLAUDE.md so assistants have project context.

@@ -1,0 +1,41 @@
+# Engagement profile: internal / prototype work.
+# Generic example. See references/ENGAGEMENT-PROFILE-SCHEMA.yaml for the full schema.
+
+profile_id: example-internal
+status: active
+label: "Example Org -- Internal"
+client: ExampleOrg
+
+# Signals used to infer this profile from an incoming request.
+signals:
+  keywords: [internal, prototype, tooling]
+  email_domains: [example.com]
+  ticket_prefixes: [INT]
+  systems: [object-store, ci]
+
+notes: >
+  Internal automation and prototypes. Light governance, but secret and license
+  hygiene always apply.
+
+intake:
+  platform: freeform          # servicenow | jira | ado | email | freeform
+  ticket_prefix: INT
+  instance_url: null
+
+work_tracking:
+  platform: generic-tracker
+  project: internal-backlog
+
+change_management:
+  gate_type: none             # approval | none
+  channel: null
+  approver: null
+
+documentation:
+  targets: [docs-platform]
+  format: markdown
+
+defaults:
+  tier: prototype             # production | internal | prototype
+  template: enterprise-template
+  language: python

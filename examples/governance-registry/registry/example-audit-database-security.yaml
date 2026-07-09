@@ -1,0 +1,34 @@
+id: example-audit-database-security
+name: Database Security Audit
+type: audit
+status: active
+description: >
+  Point-in-time assessment of a database's security posture: authentication mode,
+  least-privilege review, encryption at rest and in transit, and exposure of the
+  listener. Produces a findings report with severity-ranked remediations.
+
+location:
+  repo: example-org/audits
+  path: database-security/
+
+environment:
+  dev_tool: claude-code
+  language: sql
+
+dependencies: []
+consumers: []
+
+risk:
+  level: high
+  notes: Reads security configuration; run read-only with a scoped audit account.
+
+tags: [audit, database, security]
+tier: internal
+
+validated:
+  date: 2026-01-01
+  by: owner
+  notes: Checklist run against a sample instance; findings reproduced.
+
+created: 2026-01-01
+updated: 2026-01-01

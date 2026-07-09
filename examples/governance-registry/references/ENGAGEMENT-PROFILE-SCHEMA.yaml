@@ -1,0 +1,60 @@
+# Engagement Profile Schema (annotated, reference only)
+# Do not use this file as an actual profile. Real profiles live in profiles/<id>.yaml.
+#
+# A profile declares, for one engagement, how work arrives, where it is tracked, how
+# change is approved, and where docs go. The pipeline and skills read the active profile
+# and adapt. Null fields are skipped rather than erroring.
+#
+# Resolution order: explicitly named -> active in session -> inferred from signals ->
+# ask the user.
+
+# REQUIRED. Unique kebab-case identifier.
+profile_id: example-engagement
+
+# REQUIRED. draft | active | pending | archived
+status: active
+
+# REQUIRED. Human-readable display name.
+label: "Client Name -- Practice Area"
+
+# REQUIRED. Client organization name.
+client: ClientName
+
+# Signals used to infer this profile from an incoming request. More specific is better.
+signals:
+  keywords: []          # domain terms, system names; avoid generic words
+  email_domains: []     # sender domains that indicate this client
+  ticket_prefixes: []   # ticket-number prefixes unique to this client
+  systems: []           # named systems mentioned in the intake
+
+# Free-text notes surfaced in skill summaries.
+notes: >
+  Anything worth knowing at a glance: domain context, access limits, quirks.
+
+# How work requests arrive.
+intake:
+  platform: ticketing-system   # ticketing-system | work-tracker | email | freeform
+  ticket_prefix: TICKET        # null if not ticket-based
+  instance_url: null           # enables URL fetch instead of paste
+
+# Where delivery work is tracked.
+work_tracking:
+  platform: work-tracker
+  project: null
+
+# Change management before production deploys.
+change_management:
+  gate_type: approval          # approval | none
+  channel: null                # where the change request is routed
+  approver: null               # who approves
+
+# Where documentation is published.
+documentation:
+  targets: []                  # e.g. [docs-platform, repo-wiki]
+  format: markdown
+
+# Defaults applied to new or onboarded repos in this engagement.
+defaults:
+  tier: internal               # production | internal | prototype
+  template: enterprise-template
+  language: null

@@ -1,0 +1,40 @@
+# Engagement profile: an external client engagement with a change gate.
+# Generic example. See references/ENGAGEMENT-PROFILE-SCHEMA.yaml for the full schema.
+
+profile_id: example-client
+status: active
+label: "Example Client -- Platform Modernization"
+client: ExampleClient
+
+signals:
+  keywords: [modernization, platform, migration]
+  email_domains: [client.example]
+  ticket_prefixes: [CLIENT]
+  systems: [ticketing-system, work-tracker, docs-platform]
+
+notes: >
+  Client-facing delivery. Production changes require approval before deployment;
+  docs published to the client's documentation platform.
+
+intake:
+  platform: ticketing-system
+  ticket_prefix: CLIENT
+  instance_url: null
+
+work_tracking:
+  platform: work-tracker
+  project: client-delivery
+
+change_management:
+  gate_type: approval         # approval | none
+  channel: change-review-board
+  approver: release-manager
+
+documentation:
+  targets: [docs-platform, repo-wiki]
+  format: markdown
+
+defaults:
+  tier: production            # production | internal | prototype
+  template: enterprise-template
+  language: csharp

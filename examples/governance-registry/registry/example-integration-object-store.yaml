@@ -1,0 +1,39 @@
+id: example-integration-object-store
+name: Object Store Integration
+type: integration
+status: active
+description: >
+  Reusable client for reading and writing blobs in a cloud object store. Handles
+  auth via managed identity and exposes a small, typed surface for upload, download,
+  and listing.
+
+location:
+  repo: example-org/example-service
+  path: integrations/object_store.py
+
+environment:
+  dev_tool: claude-code
+  language: python
+  branch_convention: feature/TASK-{id}-{slug}
+  setup_steps:
+    - python3 -m venv .venv && source .venv/bin/activate
+    - pip install -r requirements.txt
+
+dependencies: []
+consumers:
+  - id: example-service-api
+
+risk:
+  level: medium
+  notes: Holds a data path to a cloud store; uses managed identity, no static keys.
+
+tags: [integration, storage, cloud]
+tier: production
+
+validated:
+  date: 2026-01-01
+  by: owner
+  notes: Round-trip upload/download verified against a test bucket.
+
+created: 2026-01-01
+updated: 2026-01-01

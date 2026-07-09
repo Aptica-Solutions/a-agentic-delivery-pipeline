@@ -1,0 +1,16 @@
+flowchart TD
+    A["Raw requirement<br/>email · ticket · message · doc"] --> B["Intake<br/>parse · register · scaffold work items & tasks"]
+    B --> C["Architect<br/>design · integration map · risk & compliance flags"]
+    C -->|open questions| Q{"Analyst Q&A loop"}
+    Q -->|answers| C
+    C --> D["Scaffold / onboard<br/>new repo from template, or conform an existing one"]
+    BF["Existing repo / portfolio"] -->|interrogate · survey gate| D
+    D --> E["Develop<br/>requirements-traceability audits<br/>toolchain-agnostic"]
+    E --> F{"QA loop<br/>structured tester feedback"}
+    F -->|defects| E
+    F --> G["Change gate<br/>approval before production"]
+    G --> H["Publish docs<br/>architecture · onboarding to docs platform"]
+    H --> I["Deployed, governed solution"]
+    C -. telemetry .-> M[("runmeter<br/>cost · latency · reliability")]
+    E -. telemetry .-> M
+    F -. telemetry .-> M

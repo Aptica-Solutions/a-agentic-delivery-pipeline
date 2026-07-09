@@ -1,0 +1,36 @@
+id: example-repo-template
+name: Enterprise Repo Template
+type: template
+status: active
+description: >
+  The template new repositories are created from and existing repositories are
+  onboarded against. Ships the standard assets: README, LICENSE, CI workflow,
+  ONBOARDING and ARCHITECTURE stubs, ignore hygiene, and an agent-context file.
+
+location:
+  repo: example-org/enterprise-template
+  clone_url: null
+
+environment:
+  dev_tool: claude-code
+  language: polyglot
+  setup_steps:
+    - gh repo create <name> --private --template example-org/enterprise-template
+
+dependencies: []
+consumers: []
+
+risk:
+  level: low
+  notes: Template only; ships no runtime code or secrets.
+
+tags: [template, scaffold, governance]
+tier: internal
+
+validated:
+  date: 2026-01-01
+  by: owner
+  notes: Template renders and CI passes on a fresh repo.
+
+created: 2026-01-01
+updated: 2026-01-01

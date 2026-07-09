@@ -1,0 +1,58 @@
+# Registry Entry Template (annotated, reference only)
+# Copy into registry/<id>.yaml and fill in. One entry per tracked artifact.
+
+# REQUIRED. Unique kebab-case identifier. Used for cross-referencing and branch naming.
+id: example-artifact
+
+# REQUIRED. Human-readable display name.
+name: Example Artifact
+
+# REQUIRED. Artifact type. See GOVERNANCE.md for the vocabulary.
+type: integration            # github-repo | integration | audit | service | claude-skill | template
+
+# REQUIRED. draft | active | deprecated | archived
+status: active
+
+# REQUIRED. One or two sentences on what this artifact does.
+description: >
+  Brief description of what this artifact does and any notable detail.
+
+# REQUIRED. Where the artifact lives.
+location:
+  repo: example-org/example-repo
+  path: src/example.py        # omit for repo-level entries
+  clone_url: null             # only for type: github-repo
+
+# OPTIONAL. Dev environment and setup hints (used to generate scaffolding steps).
+environment:
+  dev_tool: claude-code       # claude-code | vscode | other
+  language: python
+  branch_convention: feature/TASK-{id}-{slug}
+  setup_steps:
+    - python3 -m venv .venv && source .venv/bin/activate
+    - pip install -r requirements.txt
+
+# OPTIONAL. Dependency graph, for impact analysis.
+dependencies: []              # list of other artifact ids
+consumers: []                 # inverse: who depends on this
+
+# OPTIONAL. Risk classification.
+risk:
+  level: medium               # low | medium | high
+  notes: >
+    What makes this risky: credentials in transit, production-critical path, etc.
+
+# REQUIRED. Tags for filtering and grouping (lowercase kebab-case).
+tags: [example]
+
+# REQUIRED. Governance tier.
+tier: internal                # production | internal | prototype
+
+# REQUIRED. Last validation record.
+validated:
+  date: 2026-01-01
+  by: owner
+  notes: What was checked and the outcome.
+
+created: 2026-01-01
+updated: 2026-01-01
