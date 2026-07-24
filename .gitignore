@@ -26,3 +26,6 @@ venv/
 *.egg-info/
 build/
 dist/
+
+# ── Claude Code local settings (MCP approvals, permissions) ──
+.claude/settings.local.json
