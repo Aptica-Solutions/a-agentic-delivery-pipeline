@@ -1,0 +1,14 @@
+# Python dependencies for tooling scripts and project code.
+# Install: pip install -r requirements.txt  (or via runtime-setup/setup.ps1)
+
+# Structured JSON logging (used by _engineer/dev-machine-setup/log_util.py and project code)
+python-json-logger>=2.0.7
+
+# HTTP requests (ADO sync, API tooling)
+requests>=2.31.0
+
+# Azure SDK — add specific packages as the project requires
+# azure-identity>=1.15.0
+# azure-keyvault-secrets>=4.8.0
+# azure-ai-documentintelligence>=1.0.0
+# openai>=1.30.0
