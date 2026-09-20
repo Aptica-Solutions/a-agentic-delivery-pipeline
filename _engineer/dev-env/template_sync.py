@@ -20,8 +20,19 @@ from typing import Any, NoReturn, Sequence
 
 SOURCE_REPOSITORY = "Aptica-Solutions/a-repo-template"
 TEMPLATE_MARKER = ".is-template-repo"
-SUPPORTED_POLICIES = {"three-way", "seed"}
-SUPPORTED_PROFILES = {"standard", "nested-template", "lightweight", "exempt"}
+SUPPORTED_POLICIES = {"three-way", "seed", "sectioned", "overwrite"}
+REPO_BLOCK_BEGIN = b"<!-- repo-rules:begin -->"
+REPO_BLOCK_END = b"<!-- repo-rules:end -->"
+# git merge-file reports conflict counts up to this value; anything higher
+# is a genuine tool error rather than a conflicted merge.
+MERGE_CONFLICT_LIMIT = 127
+SUPPORTED_PROFILES = {
+    "standard",
+    "standard-local-docs",
+    "nested-template",
+    "lightweight",
+    "exempt",
+}
 CANONICAL_TEMPLATE_ORIGIN = re.compile(
     r"^(https://github\.com/|git@github\.com:|ssh://git@github\.com/)"
     r"(Aptica-Solutions/a-repo-template|szeltneraptica/repo-template)"
@@ -223,15 +234,42 @@ def load_policy(root: Path, ref: str) -> dict[str, Any]:
     return policy
 
 
-def manifest_files(root: Path, ref: str, policy: dict[str, Any], profile: str) -> list[str]:
+def profile_patterns(
+    policy: dict[str, Any],
+    profile: str,
+    key: str,
+    required: bool,
+) -> list[str]:
     profile_definition = policy["profiles"].get(profile)
     if not isinstance(profile_definition, dict):
         raise SyncError(f"Profile '{profile}' is not defined in .template-policy.json.")
-    include_patterns = profile_definition.get("include")
-    if not isinstance(include_patterns, list) or not all(
-        isinstance(pattern, str) and pattern for pattern in include_patterns
+    patterns = profile_definition.get(key)
+    if patterns is None and not required:
+        return []
+    if not isinstance(patterns, list) or not all(
+        isinstance(pattern, str) and pattern for pattern in patterns
     ):
-        raise SyncError(f"Profile '{profile}' must define a string include list.")
+        raise SyncError(f"Profile '{profile}' must define a string {key} list.")
+    for pattern in patterns:
+        validate_relative_path(pattern, f"Profile {key} pattern")
+    return patterns
+
+
+def excluded_by_profile(relative_path: str, exclude_patterns: Sequence[str]) -> bool:
+    """Return whether a profile disclaims ownership of a template path.
+
+    An excluded path is neither delivered nor deleted: the downstream repository
+    owns it outright, so a lingering lock entry must not be read as a template
+    removal.
+    """
+    return any(
+        fnmatch.fnmatchcase(relative_path, pattern) for pattern in exclude_patterns
+    )
+
+
+def manifest_files(root: Path, ref: str, policy: dict[str, Any], profile: str) -> list[str]:
+    include_patterns = profile_patterns(policy, profile, "include", True)
+    exclude_patterns = profile_patterns(policy, profile, "exclude", False)
 
     content = ref_bytes(root, ref, ".templatefiles").decode("utf-8")
     files: list[str] = []
@@ -248,9 +286,43 @@ def manifest_files(root: Path, ref: str, policy: dict[str, Any], profile: str) -
         validate_relative_path(line, "Manifest entry")
         if PurePosixPath(line).name.startswith(".TODO"):
             continue
+        if excluded_by_profile(line, exclude_patterns):
+            continue
         if any(fnmatch.fnmatchcase(line, pattern) for pattern in include_patterns):
             files.append(line)
     return files
+
+
+def split_repo_block(content: bytes) -> tuple[bytes, bytes, bytes] | None:
+    """Return (before, block, after) around the repo-owned block, markers excluded."""
+    begin = content.find(REPO_BLOCK_BEGIN)
+    end = content.find(REPO_BLOCK_END)
+    if begin < 0 or end < begin:
+        return None
+    start = begin + len(REPO_BLOCK_BEGIN)
+    return content[:start], content[start:end], content[end:]
+
+
+def sectioned_content(source: bytes, current: bytes | None, current_is_template: bool) -> bytes:
+    """Template text with the downstream repo-owned block carried over.
+
+    The template owns everything outside the markers. The downstream repository
+    owns what sits between them, so this policy never conflicts. A file with no
+    markers migrates once: content that was never a template version moves into
+    the block whole, and an untouched template version keeps the default block.
+    """
+    parts = split_repo_block(source)
+    if parts is None or current is None:
+        return source
+    before, _, after = parts
+    downstream = split_repo_block(current)
+    if downstream is not None:
+        block = downstream[1]
+    elif current_is_template:
+        return source
+    else:
+        block = b"\n" + current.strip() + b"\n"
+    return before + block + after
 
 
 def load_lock(root: Path, lock_path: str) -> dict[str, Any] | None:
@@ -299,12 +371,18 @@ def merge_bytes(current: bytes, baseline: bytes, requested: bytes) -> bytes | No
             check=False,
             capture_output=True,
         )
+        # git merge-file returns the number of conflicts, capped at 127, not a
+        # plain 0/1. Treating any count above one as a tool failure aborted the
+        # whole run on files that simply conflicted in more than one hunk.
         if completed.returncode == 0:
             return completed.stdout
-        if completed.returncode == 1:
+        if 0 < completed.returncode <= MERGE_CONFLICT_LIMIT:
             return None
         detail = completed.stderr.decode("utf-8", errors="replace").strip()
-        raise SyncError(f"git merge-file failed: {detail}")
+        raise SyncError(
+            f"git merge-file failed with exit {completed.returncode}: "
+            f"{detail or 'no diagnostic output'}"
+        )
 
 
 def add_result(
@@ -392,6 +470,7 @@ def synchronize(arguments: argparse.Namespace) -> dict[str, Any]:
     release = arguments.template_release or arguments.template_ref
     policy = load_policy(root, resolved_ref)
     files = manifest_files(root, resolved_ref, policy, arguments.profile)
+    exclude_patterns = profile_patterns(policy, arguments.profile, "exclude", False)
     lock = load_lock(root, arguments.lock_path)
 
     old_commit = str(lock["template_commit"]) if lock else ""
@@ -464,6 +543,28 @@ def synchronize(arguments: argparse.Namespace) -> dict[str, Any]:
 
         if current_blob == source_blob:
             add_result(results, relative_path, "unchanged", path_policy)
+            continue
+
+        if path_policy in {"sectioned", "overwrite"} and current_blob is not None:
+            source_content = ref_bytes(root, resolved_ref, relative_path)
+            current_content = repository_path(root, relative_path).read_bytes()
+            if path_policy == "overwrite":
+                requested, detail = source_content, "Template owns this file outright."
+            else:
+                is_template = current_blob == baseline_blob or ref_history_contains_blob(
+                    root, resolved_ref, relative_path, current_blob
+                )
+                requested = sectioned_content(source_content, current_content, is_template)
+                detail = (
+                    "Repo-owned block kept."
+                    if split_repo_block(current_content) is not None or is_template
+                    else "Migrated: previous downstream content moved into the repo-owned block."
+                )
+            if requested == current_content:
+                add_result(results, relative_path, "unchanged", path_policy)
+            else:
+                add_result(results, relative_path, "update", path_policy, detail)
+                pending_writes[relative_path] = PendingWrite(requested)
             continue
 
         if path_policy == "seed" and current_blob is not None:
@@ -554,6 +655,15 @@ def synchronize(arguments: argparse.Namespace) -> dict[str, Any]:
         for relative_path, locked_file in lock["files"].items():
             validate_relative_path(relative_path, "Locked path")
             if relative_path in new_file_state:
+                continue
+            if excluded_by_profile(relative_path, exclude_patterns):
+                add_result(
+                    results,
+                    relative_path,
+                    "preserve",
+                    "excluded",
+                    "Profile excludes this path; downstream owns it.",
+                )
                 continue
             baseline_blob = str(locked_file.get("template_blob", ""))
             current_blob = worktree_blob(root, relative_path)
