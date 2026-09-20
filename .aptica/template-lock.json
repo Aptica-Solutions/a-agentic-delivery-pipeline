@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "source_repository": "Aptica-Solutions/a-repo-template",
-  "template_release": "template-v2026.09.4",
-  "template_commit": "1823a9e2d81282cab3fb0dbedc1fbeeb85e7b974",
+  "template_release": "template-v2026.09.5",
+  "template_commit": "0119170da22f1de02d9181bdba080bed3b99344b",
   "template_profile": "standard",
-  "applied_at": "2026-09-20T16:19:01.799877+00:00",
+  "applied_at": "2026-09-20T23:35:34.026262+00:00",
   "files": {
     "AGENTS.md": {
-      "template_blob": "7b0bf83e581bcc301a74041f91d2ce9cb9bde3ad",
+      "template_blob": "451278fef2a543c744c93bb7946754982eaa3323",
       "policy": "sectioned"
     },
     "CLAUDE.md": {
@@ -15,7 +15,7 @@
       "policy": "overwrite"
     },
     "_engineer/ENGINEER-README.md": {
-      "template_blob": "e4c8bc29069b6735fd73fed6926a842ef7ac16d7",
+      "template_blob": "d23f6baf903405e01b072ff9866e752a510a3f1b",
       "policy": "three-way"
     },
     "_engineer/ENGINEER-FLOW.md": {
@@ -91,7 +91,7 @@
       "policy": "three-way"
     },
     "_engineer/dev-env/template_sync.py": {
-      "template_blob": "181048ef53598c95e5b09b28f9e6fd04f79dc775",
+      "template_blob": "b4fc0c3caa37929509535dedd34dea3f11ef0c35",
       "policy": "three-way"
     },
     "_engineer/ai-cost/configure.py": {

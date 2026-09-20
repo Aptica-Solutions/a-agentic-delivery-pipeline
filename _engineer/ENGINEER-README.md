@@ -373,6 +373,9 @@ profile, and per-file template blobs. Later runs use that baseline to:
 - update files unchanged by the downstream repository;
 - preserve downstream-only changes and seed files;
 - three-way merge non-overlapping edits;
+- delete a file listed under `retired_paths` in `.template-policy.json` even when the repository
+  changed it: the lines the repository added move into the `AGENTS.md` repo-owned block under a
+  "Carried over from" heading, and a file the repository only trimmed is simply deleted;
 - stop on overlapping edits or unsafe deletions; and
 - advance the lock only after a conflict-free apply.
 
