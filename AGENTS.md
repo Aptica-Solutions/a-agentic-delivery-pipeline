@@ -7,6 +7,11 @@ through the one-line `CLAUDE.md` import stub. Edit rules here and nowhere else.
 Keep this file well under 32 KiB, the Codex combined limit. Long reference material
 belongs in `_engineer/` or an a-brain document, fetched on demand.
 
+A repository on the lightweight template profile receives this file, `CLAUDE.md`,
+`.claude/`, the boundary workflow and the pre-commit config, and nothing else. There,
+sections that point into `_engineer/`, `docs/` or `AI-TASKS.md` do not apply; the rules
+themselves still do.
+
 ---
 
 ## This Repository

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import difflib
 import fnmatch
 import json
 import os
@@ -231,6 +232,17 @@ def load_policy(root: Path, ref: str) -> dict[str, Any]:
         raise SyncError("Template profiles must be an object.")
     if not isinstance(policy.get("path_policies", {}), dict):
         raise SyncError("Template path_policies must be an object.")
+    retired = policy.get("retired_paths", {})
+    if not isinstance(retired, dict):
+        raise SyncError("Template retired_paths must be an object.")
+    for retired_path, disposition in retired.items():
+        validate_relative_path(retired_path, "Retired path")
+        target = disposition.get("absorb_into") if isinstance(disposition, dict) else None
+        if not isinstance(target, str):
+            raise SyncError(
+                f"Retired path '{retired_path}' must define a string absorb_into."
+            )
+        validate_relative_path(target, "Retired absorb_into path")
     return policy
 
 
@@ -323,6 +335,51 @@ def sectioned_content(source: bytes, current: bytes | None, current_is_template:
     else:
         block = b"\n" + current.strip() + b"\n"
     return before + block + after
+
+
+def downstream_additions(current: bytes, baseline: bytes) -> bytes:
+    """Lines the downstream repository added to a template file, in order.
+
+    What a repository contributed to a template-owned file is exactly what it
+    added relative to the version it received. Deletions and untouched template
+    text carry nothing worth keeping once the template retires the file.
+    """
+    current_lines = current.decode("utf-8", errors="replace").splitlines()
+    baseline_lines = baseline.decode("utf-8", errors="replace").splitlines()
+    added: list[str] = []
+    matcher = difflib.SequenceMatcher(a=baseline_lines, b=current_lines, autojunk=False)
+    for tag, _, _, start, end in matcher.get_opcodes():
+        if tag in {"insert", "replace"}:
+            if added and added[-1] != "":
+                added.append("")
+            added.extend(current_lines[start:end])
+    while added and not added[-1].strip():
+        added.pop()
+    while added and not added[0].strip():
+        added.pop(0)
+    if not any(line.strip() for line in added):
+        return b""
+    return ("\n".join(added) + "\n").encode("utf-8")
+
+
+def absorb_into_block(target: bytes, retired_path: str, additions: bytes) -> bytes | None:
+    """Append a retired file's downstream additions to the repo-owned block.
+
+    Returns None when the target has no repo-owned block. Re-running is a no-op:
+    the carried-over heading marks content that has already been absorbed.
+    """
+    parts = split_repo_block(target)
+    if parts is None:
+        return None
+    before, block, after = parts
+    heading = f"## Carried over from `{retired_path}`".encode("utf-8")
+    if heading in block:
+        return target
+    note = (
+        b"The template retired that file. These are the lines this repository had "
+        b"added to it. Review and tidy.\n\n"
+    )
+    return before + block.rstrip(b"\n") + b"\n\n" + heading + b"\n\n" + note + additions + after
 
 
 def load_lock(root: Path, lock_path: str) -> dict[str, Any] | None:
@@ -492,6 +549,7 @@ def synchronize(arguments: argparse.Namespace) -> dict[str, Any]:
     new_file_state: OrderedDict[str, dict[str, str]] = OrderedDict()
     pending_writes: OrderedDict[str, PendingWrite] = OrderedDict()
     pending_deletes: list[str] = []
+    retired_modified: list[str] = []
 
     if stale_template_marker:
         add_result(
@@ -678,6 +736,8 @@ def synchronize(arguments: argparse.Namespace) -> dict[str, Any]:
             elif current_blob == baseline_blob:
                 add_result(results, relative_path, "delete", "removed")
                 pending_deletes.append(relative_path)
+            elif relative_path in policy.get("retired_paths", {}):
+                retired_modified.append(relative_path)
             else:
                 add_result(
                     results,
@@ -686,6 +746,61 @@ def synchronize(arguments: argparse.Namespace) -> dict[str, Any]:
                     "removed",
                     "Removed from template but modified downstream.",
                 )
+
+    for relative_path in retired_modified:
+        target_path = policy["retired_paths"][relative_path]["absorb_into"]
+        additions = downstream_additions(
+            repository_path(root, relative_path).read_bytes(),
+            ref_bytes(root, old_commit, relative_path),
+        )
+        if not additions:
+            add_result(
+                results,
+                relative_path,
+                "delete",
+                "retired",
+                "Retired by the template; downstream only removed text, nothing to keep.",
+            )
+            pending_deletes.append(relative_path)
+            continue
+        if target_path in pending_writes:
+            target_content: bytes | None = pending_writes[target_path].content
+        elif target_path in new_file_state and repository_path(root, target_path).is_file():
+            target_content = repository_path(root, target_path).read_bytes()
+        else:
+            target_content = None
+        absorbed = (
+            absorb_into_block(target_content, relative_path, additions)
+            if target_content is not None
+            else None
+        )
+        if absorbed is None:
+            add_result(
+                results,
+                relative_path,
+                "conflict",
+                "retired",
+                f"Retired and modified downstream, but {target_path} has no repo-owned "
+                "block in this profile to absorb it.",
+            )
+            continue
+        pending_writes[target_path] = PendingWrite(absorbed)
+        for item in results:
+            if item["path"] == target_path and item["action"] == "unchanged":
+                item["action"] = "update"
+        for item in results:
+            if item["path"] == target_path:
+                item["detail"] = (
+                    item["detail"] + " " if item["detail"] else ""
+                ) + f"Absorbed downstream additions from {relative_path}."
+        add_result(
+            results,
+            relative_path,
+            "delete",
+            "retired",
+            f"Retired by the template; downstream additions moved into {target_path}.",
+        )
+        pending_deletes.append(relative_path)
 
     conflicts = [item for item in results if item["action"] == "conflict"]
     changes = [
