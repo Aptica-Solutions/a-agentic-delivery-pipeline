@@ -376,6 +376,8 @@ profile, and per-file template blobs. Later runs use that baseline to:
 - delete a file listed under `retired_paths` in `.template-policy.json` even when the repository
   changed it: the lines the repository added move into the `AGENTS.md` repo-owned block under a
   "Carried over from" heading, and a file the repository only trimmed is simply deleted;
+- update a file the lock does not name when it is byte-for-byte a version the template once
+  shipped, since nothing downstream can be lost;
 - stop on overlapping edits or unsafe deletions; and
 - advance the lock only after a conflict-free apply.
 
@@ -404,6 +406,12 @@ the fork is recorded as policy rather than surviving as unexplained drift.
 Excluding a path does not delete the downstream copy. Remove the path's entry
 from `.aptica/template-lock.json` in the same change so the engine stops
 tracking a file it no longer manages.
+
+Moving a repository to a narrower profile releases the paths the new profile does not own.
+The template still ships them, so this is not a template removal: the engine reports them as
+`preserve` with policy `released`, leaves every file in place whether or not the repository
+edited it, and drops them from the lock. Delete the ones the repository no longer wants in an
+ordinary commit.
 
 ---
 
