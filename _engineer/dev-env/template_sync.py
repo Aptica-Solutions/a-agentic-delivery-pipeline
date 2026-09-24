@@ -279,10 +279,8 @@ def excluded_by_profile(relative_path: str, exclude_patterns: Sequence[str]) -> 
     )
 
 
-def manifest_files(root: Path, ref: str, policy: dict[str, Any], profile: str) -> list[str]:
-    include_patterns = profile_patterns(policy, profile, "include", True)
-    exclude_patterns = profile_patterns(policy, profile, "exclude", False)
-
+def distributable_paths(root: Path, ref: str) -> list[str]:
+    """Return every path the template distributes, before any profile narrows it."""
     content = ref_bytes(root, ref, ".templatefiles").decode("utf-8")
     files: list[str] = []
     in_distributable = False
@@ -298,11 +296,19 @@ def manifest_files(root: Path, ref: str, policy: dict[str, Any], profile: str) -
         validate_relative_path(line, "Manifest entry")
         if PurePosixPath(line).name.startswith(".TODO"):
             continue
-        if excluded_by_profile(line, exclude_patterns):
-            continue
-        if any(fnmatch.fnmatchcase(line, pattern) for pattern in include_patterns):
-            files.append(line)
+        files.append(line)
     return files
+
+
+def manifest_files(root: Path, ref: str, policy: dict[str, Any], profile: str) -> list[str]:
+    include_patterns = profile_patterns(policy, profile, "include", True)
+    exclude_patterns = profile_patterns(policy, profile, "exclude", False)
+    return [
+        line
+        for line in distributable_paths(root, ref)
+        if not excluded_by_profile(line, exclude_patterns)
+        and any(fnmatch.fnmatchcase(line, pattern) for pattern in include_patterns)
+    ]
 
 
 def split_repo_block(content: bytes) -> tuple[bytes, bytes, bytes] | None:
@@ -527,6 +533,7 @@ def synchronize(arguments: argparse.Namespace) -> dict[str, Any]:
     release = arguments.template_release or arguments.template_ref
     policy = load_policy(root, resolved_ref)
     files = manifest_files(root, resolved_ref, policy, arguments.profile)
+    still_distributed = set(distributable_paths(root, resolved_ref))
     exclude_patterns = profile_patterns(policy, arguments.profile, "exclude", False)
     lock = load_lock(root, arguments.lock_path)
 
@@ -642,6 +649,23 @@ def synchronize(arguments: argparse.Namespace) -> dict[str, Any]:
             continue
 
         if baseline_blob is None:
+            if not arguments.accept_existing_as_baseline and ref_history_contains_blob(
+                root,
+                resolved_ref,
+                relative_path,
+                current_blob,
+            ):
+                # No lock entry, but the file is byte-for-byte a version the
+                # template once shipped, so nothing downstream can be lost.
+                add_result(
+                    results,
+                    relative_path,
+                    "update",
+                    path_policy,
+                    "No baseline, but the file is an exact historical template version.",
+                )
+                pending_writes[relative_path] = PendingWrite(source_content)
+                continue
             if arguments.accept_existing_as_baseline:
                 if ref_history_contains_blob(
                     root,
@@ -721,6 +745,19 @@ def synchronize(arguments: argparse.Namespace) -> dict[str, Any]:
                     "preserve",
                     "excluded",
                     "Profile excludes this path; downstream owns it.",
+                )
+                continue
+            if relative_path in still_distributed:
+                # The template still ships this path; this profile just does not
+                # own it. That is a profile change, not a template removal, so
+                # the file is released to the repository: never deleted, never
+                # a conflict, and dropped from the lock.
+                add_result(
+                    results,
+                    relative_path,
+                    "preserve",
+                    "released",
+                    "Outside this profile; downstream owns it.",
                 )
                 continue
             baseline_blob = str(locked_file.get("template_blob", ""))
