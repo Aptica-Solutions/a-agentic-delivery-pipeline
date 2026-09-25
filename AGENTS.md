@@ -84,7 +84,7 @@ cp .env.example .env  # fill in Azure credentials
 | `logs/dev-testing/` | Log output during active development (`LOG_FILE=./logs/dev-testing/dev.log`) |
 | `logs/test-case-N/` | Log output per scenario run (`LOG_FILE=./logs/test-case-N/run.log`) |
 | `publish/dist/` | Build output, gitignored |
-| `.mcp.json`, `codex.json`, `.vscode/mcp.json` | MCP server configuration per tool |
+| `.mcp.json`, `.vscode/mcp.json` | MCP server configuration per tool (Codex reads `~/.codex/config.toml`) |
 
 ---
 
@@ -345,7 +345,7 @@ doc, update `docs/DOC-TOC.md` with a one-line description.
 These apply only to the named tool. Everything above applies to all of them.
 
 **Claude Code**
-- `/handoff` writes the `CONTEXT.md` note described above. Run it before every `/clear`
+- Run the `checkpoint` skill before every `/clear`; it writes the `CONTEXT.md` note described above
 - Memory lives at `~/.claude/projects/<encoded-path>/memory/`. Save role and expertise,
   confirmed non-obvious approaches, project decisions, and external resource locations.
   Do not save code patterns (read the code), ephemeral task state (use `AI-TASKS.md`),

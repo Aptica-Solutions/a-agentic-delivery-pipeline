@@ -40,16 +40,13 @@ repo-root/
 │
 ├── .claude/                        Claude Code project settings
 │   ├── settings.json               Permissions, hooks
-│   ├── commands/                   Slash commands (/project-init, /handoff)
 │   └── hooks/                      UserPromptSubmit hooks (onboarding gate)
 ├── .github/
 │   ├── dependabot.yml              Dependency update configuration
 │   ├── CODEOWNERS                  Required reviewers for sensitive paths
 │   └── workflows/secret-scan.yml  CI — gitleaks on push and PR
-├── .gemini/settings.json           Gemini CLI project config + MCP
 ├── .vscode/mcp.json                VS Code / Copilot MCP servers
 ├── .mcp.json                       Claude Code MCP servers
-├── codex.json                      Codex project config + MCP
 ├── .pre-commit-config.yaml         Pre-commit hooks (gitleaks on every commit)
 │
 ├── backend/                        API, services, routes, middleware
@@ -310,9 +307,9 @@ Check `CONTEXT.md` at session start. If non-empty, read the handoff note and ack
 ## Session Reset Threshold
 
 After **20 user-AI exchanges**, proactively suggest:
-> "This session is getting long. Run `/handoff` before `/clear` to preserve context."
+> "This session is getting long. Run the checkpoint skill before `/clear` to preserve context."
 
-Run `/handoff` before every `/clear`. It writes a structured note to `CONTEXT.md` and prompts for `/clear`.
+Run the `checkpoint` skill before every `/clear`. It writes a structured note to `CONTEXT.md` and a work ledger line, then recommends how to end the session.
 
 Do not commit `CONTEXT.md` — it is session state, not source.
 
