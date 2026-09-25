@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "source_repository": "Aptica-Solutions/a-repo-template",
-  "template_release": "template-v2026.09.7",
-  "template_commit": "ce842304056ab975e1fbbae75f36be9cea5a1d7a",
+  "template_release": "template-v2026.09.8",
+  "template_commit": "6b843f21caa8cca4803cdd7940a3a93ca5c3c1c1",
   "template_profile": "standard",
-  "applied_at": "2026-09-24T23:48:21.375940+00:00",
+  "applied_at": "2026-09-25T03:23:02.212561+00:00",
   "files": {
     "AGENTS.md": {
-      "template_blob": "0327206846bdaa3d4aff92bc2543e3057feea49f",
+      "template_blob": "5bc66c878843d2b3ae309af155841bf5a7e5f6f5",
       "policy": "sectioned"
     },
     "CLAUDE.md": {
@@ -15,7 +15,7 @@
       "policy": "overwrite"
     },
     "_engineer/ENGINEER-README.md": {
-      "template_blob": "c49c958f74074f3e047c28804ad7cb26f916d113",
+      "template_blob": "18f91fe92ef94e6b981bac3291223086bde90a28",
       "policy": "three-way"
     },
     "_engineer/ENGINEER-FLOW.md": {
@@ -122,10 +122,6 @@
       "template_blob": "018f69307e98b72fe3d3bec011df0d81d48e721a",
       "policy": "three-way"
     },
-    ".claude/commands/handoff.md": {
-      "template_blob": "fd36269773e19b161246be3bc02c3c9a01009095",
-      "policy": "three-way"
-    },
     ".claude/hooks/check-templatefiles.py": {
       "template_blob": "2570616e3bc18ec1b80a362e27d91fc2e9aa0d90",
       "policy": "three-way"
@@ -196,14 +192,6 @@
     },
     ".mcp.json": {
       "template_blob": "86dc2738a681bc145d82b762984acc6a67a62e13",
-      "policy": "seed"
-    },
-    ".gemini/settings.json": {
-      "template_blob": "f5555fd954742d246d66956ca32d0846e9f6c67d",
-      "policy": "seed"
-    },
-    "codex.json": {
-      "template_blob": "9fbbc7c2c160a2c664bfb476c9e97a328ef33253",
       "policy": "seed"
     }
   }
